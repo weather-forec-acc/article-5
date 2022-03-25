@@ -1,0 +1,88 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!--<link rel="icon" type="image/png" href="favicon.png">-->
+  <!-- Стили из внешнего файла -->
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <!-- Иконки Google -->
+  <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>-->
+  <!-- <script src="https://code.highcharts.com/highcharts.js"></script> -->
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <script src="highcharts.js"></script>
+</head>
+<body>
+  <!-- Фирменное изображение -->
+  <table style="width:100%;" id="tbl_title">
+    <tr>
+      <td>
+        <!-- <img src="data:image/png;base64,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"> -->
+		<img src="Oil">
+      </td>
+      <td>  
+        <h3>Generator for ultrasonic piezo transducer</h3>
+        <h4>Product #5 (ESP8266, AsyncWebServer)</h4>
+      </td>
+      <td>
+        <span id="time"></span>
+        <span id="day"></span>
+        <br>
+        <span id="date"></span>
+      </td>
+    </tr>
+  </table>
+  <fieldset>
+    <legend>Control</legend>
+	<table id="tbl_control">
+	  <tr>
+	    <td>
+		  Frequency, Hz
+		</td>
+		<td>
+		  <input type="button" onclick="inc_freq()" value="Increase by 10 kHz" style="width: 140px;">
+		</td>
+		<td>
+		  Current, mA
+		</td>
+		<td rowspan="2">
+		  <input type="button" id="run_setup_btn_id" onclick="run_setup()" value="Run setup" style="height: 50px;">
+		</td>
+	  </tr>
+	  <tr>
+	    <td>
+		  <span id="set_frequency" style="background: white; border: 1px double black; padding: 2px;"></span>
+		</td>
+		<td>
+		  <input type="button" onclick="dec_freq()" value="Decrease by 10 kHz" style="width: 140px;">
+		</td>
+		<td>
+		  <span id="device_current" style="display: inline-block; background: white; border: 1px double black; padding: 2px; width:38px;"></span>
+		</td>
+	  </tr>
+	</table>
+  </fieldset>
+  <fieldset>
+    <legend>Setup</legend>
+	<div id="chart-current" class="chart-container"></div>
+  </fieldset>
+  
+  <fieldset>
+    <legend>Temperature</legend>
+    <div id="chart-temperature" class="chart-container"></div>
+  </fieldset>
+  
+  <footer>
+    <span class="ds-labels">Microcontroller:</span>
+    <!--<i class="material-icons"  style="color:green; font-size: 20px">event_available</i>-->
+    <span>works since</span>
+    <span id="start_operation"></span>
+    <!--<i class="material-icons" style="color:brown; font-size: 20px">schedule</i> -->
+    <span>, operating time</span>
+	<ruby  id="operating_time_days"></ruby>
+	<ruby  id="operating_time_hours"></ruby>
+	<ruby id="operating_time_mins"></ruby>
+  </footer>
+  <script src="main.js"></script>
+</body>
+</html>

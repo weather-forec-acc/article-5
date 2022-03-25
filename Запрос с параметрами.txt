@@ -1,0 +1,46 @@
+// Код JavaScrypt
+function toggleCheckbox(element) {
+	var xhr = new XMLHttpRequest();
+	if(element.checked){
+		xhr.open("GET", "/update?output="+element.id+"&state=1", true);
+	} else {
+		xhr.open("GET", "/update?output="+element.id+"&state=0", true);
+	}
+	xhr.send();
+}
+
+// Код Arduino
+const char* PARAM_INPUT_1 = "output";
+server.on("/update", HTTP_GET, [] (AsyncWebServerRequest *request) {
+	String inputMessage1;
+	String inputMessage2;
+	// Получить запрос GET значения input1 от <ESP_IP>/update?output=<inputMessage1>&state=<inputMessage2>
+	if (request->hasParam(PARAM_INPUT_1) && request->hasParam(PARAM_INPUT_2)) {
+		inputMessage1 = request->getParam(PARAM_INPUT_1)->value();
+		inputMessage2 = request->getParam(PARAM_INPUT_2)->value();
+		digitalWrite(inputMessage1.toInt(), inputMessage2.toInt());
+	} else {
+		inputMessage1 = "No message sent";
+		inputMessage2 = "No message sent";
+	}
+	Serial.print("GPIO: ");
+	Serial.print(inputMessage1);
+	Serial.print(" - Set to: ");
+	Serial.println(inputMessage2);
+	request->send(200, "text/plain", "OK");
+});
+
+ESP8266 получает запросы подобные этому: /update?output=2&state=0
+
+Получаем запросы такого типа:
+	<ESP_IP>/update?output=<inputMessage1>&state=<inputMessage2>
+
+В первом сценарии вы нажимаете кнопку, чтобы включить GPIO 2.
+Когда это произойдет, то отправиться HTTP-запрос
+	GET на /update?output=2&state=1.
+На основе этого URL-адреса мы меняем состояние GPIO 2 на 1 (HIGH) и включаем светодиод.
+
+Во втором сценарии вы нажимаете кнопку, чтобы выключить GPIO 2.
+Когда это произойдет, то отправиться HTTP-запрос
+	GET на /update?output=2&state=0.
+На основе этого URL-адреса мы меняем состояние GPIO 2 на 0 (LOW) и выключаем светодиод.

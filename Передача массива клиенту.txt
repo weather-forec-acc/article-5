@@ -1,0 +1,39 @@
+// сначала создайте фиксированный буфер
+const int bufferSize = 6000;
+uint8_t _buffer[6000];
+
+//небольшой счетчик, чтобы знать, в какой позиции мы находимся в нашем буфере
+int bufferCounter = 0;
+  
+int fileSize = 80000;
+
+// теперь отправьте пустую строку, но с полем заголовка Content-Length, чтобы браузер знал, сколько данных он должен ожидать
+server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+server.sendHeader("Content-Length", (String)fileSize);
+server.send(200, "text/html", "");
+
+for(int i=0;i<fileSize;i++){
+  _buffer[bufferCounter] = random(256); //записать несколько случайных байтов в наш буфер
+  bufferCounter++;
+  
+  if(bufferCounter >= bufferSize){ //when the buffer is full...
+    server.sendContent_P(_buffer, bufferCounter); //отправить текущий буфер
+    bufferCounter = 0; //сбросить счетчик
+  }
+  
+}
+
+//отправить остальные байты, если они есть
+if(bufferCounter > 0){
+  server.sendContent_P(_buffer, bufferCounter);
+  bufferCounter = 0;
+}
+
+void handle_root() {
+  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  server.send(200, "text/plain", "");
+  int i;
+  for (i = 0; i < array_length; i++) {
+    server.sendContent(String(myarray[i]) + "\r\n");
+  }
+}

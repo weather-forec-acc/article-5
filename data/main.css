@@ -1,0 +1,78 @@
+html {
+      /*font-family: Arial;*/
+      display: inline-block;
+      margin: 0px auto;
+      text-align: center;
+      width: 600px;
+      /*border: 1px double black;*/
+      /*background: red;*/ /* Цвет фона */
+    }
+    h2 { font-size: 2.0rem; }
+p { 
+	font-size: 1.0rem;
+	margin: 5px;
+}
+    .units { font-size: 1.2rem; }
+footer {
+  position: fixed;
+  left: 0; bottom: 0; /* Левый нижний угол */
+  padding: 18px 0 5px 0; /* Поля вокруг текста */
+  background: #ddd; /* Цвет фона */
+  color: #000; /* Цвет текста */
+  width: 100%;
+}
+fieldset {
+  margin: 10px;
+  padding: 0 5px 5px;
+  border: 1px solid #666;
+  border-radius: 8px;
+  /*box-shadow: 0 0 10px #666;*/
+  padding-top: 10px;
+}
+legend {
+  padding: 2px 4px;
+  background: #fff;
+  /* For better legibility against the box-shadow */
+}
+fieldset > legend {
+  float: left;
+  margin-top: -20px;
+}
+fieldset > legend + * {
+  clear: both;
+}
+rt {
+  font-size: 12px;
+  font-family: Arial;  
+}
+ruby {
+  margin: 0 6px;	
+}
+
+.chart-container {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+#chart-temperature {
+  height: 280px;
+}
+
+#chart-current {
+  height: 230px;
+}
+
+h3, h4 {
+  margin: 5px;	
+}
+#tbl_control {
+  width: 100%;
+  table-layout: fixed;
+}
+#tbl_control td {
+  width: 100%;
+}
+
+text {
+  font-weight: 200;	
+}
