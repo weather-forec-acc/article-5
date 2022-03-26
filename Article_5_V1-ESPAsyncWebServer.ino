@@ -15,7 +15,7 @@ FS* fileSystem = &LittleFS;
 LittleFSConfig fileSystemConfig = LittleFSConfig();
 
 // контакт для передачи данных подключен к D1 на ESP8266 12-E (GPIO5):
-#define ONE_WIRE_BUS 5
+const byte ONE_WIRE_BUS = 5;
 
 byte op_time_num = 0;
 uint addr = 0;
@@ -33,6 +33,7 @@ const long interval = 30000; // 30 c
 long interval_blink = 1000; // 2 c
 
 #define TEMPERATURE_PRECISION 12 // точность измерений (9 ... 12)
+enum Mode_operation {WORK_MODE, SEARCH_MODE};
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
@@ -51,7 +52,7 @@ DallasTemperature sensors(&oneWire);
 String temperatureC = "";
 String startOperation = "";
 String operatingTime[3];
-bool mode_operation = true; // true - рабочий, false - настройка
+Mode_operation mode_operation = WORK_MODE;
 unsigned long frequency;// = 1730000;
 unsigned long frequency_opt = 0; // Если оптимальная частота = 0,
 // значит она еще не определена в процессе настройки или
@@ -279,7 +280,7 @@ void setup()
 
   // 12.10 Ответ на запрос на запуск режима настройки
   server.on("/run_setup", HTTP_GET, [](AsyncWebServerRequest * request) {
-    mode_operation = false;
+    mode_operation = SEARCH_MODE;
     request->send_P(200, "text/plain", String(mode_operation).c_str());
     setting_begin(); // Начинаем настройку
   });
@@ -317,7 +318,7 @@ void loop() {
     interval_blink = random(1000);
   }
   if (currentMillis - previousMillis >= interval) {
-    if (mode_operation) {
+    if (mode_operation == WORK_MODE) {
       // Измеряем температуру
       events.send(readDSTemperatureC().c_str(), "temperature_new" , millis());
       delay(50);
@@ -335,7 +336,7 @@ void loop() {
       readings_op_time["hours"] = operatingTime[1];
       readings_op_time["mins"] = operatingTime[2];
       String jsonString = JSON.stringify(readings_op_time);
-      if (mode_operation) {
+      if (mode_operation == WORK_MODE) {
         events.send(jsonString.c_str(), "operating_time_new" , millis());
         delay(50);
       }
@@ -354,7 +355,7 @@ void loop() {
   if (measurement_num == NUMBER_MEASUREMENTS) {
     voltage_average = voltage;
     // Если режим настройки, то выполняем
-    if (!mode_operation) {
+    if (mode_operation == SEARCH_MODE) {
       // Запоминаем напряжение для этого значения частоты
       current_freq_arr[freq_num] = voltage_average * 1000; // mA
       // Для имитации. Удалить в ральной схеме. y=2043,7x4 - 13920x3+35447x2-39997x+16875
@@ -426,7 +427,7 @@ void loop() {
         */
         EEPROM.commit(); // сохранить изменения
         // Переходим в рабочий режим
-        mode_operation = true;
+        mode_operation = WORK_MODE;
         // Устанавливаем наилучшую частоту
         SG_freqSet();
       }
