@@ -1,51 +1,4 @@
-/* 13-02-2022 Проект устройства № 5
-  Устройство на ESP8266
-  Версия 1 - на ESPAsyncWebServer.
-  Источники информации:
-  1) Периодическое изменение данных с веб-сервера без перезагрузки страницы:
-  Display DS18B20 Temperature Readings in a Web Server -
-  https://randomnerdtutorials.com/esp8266-ds18b20-temperature-sensor-web-server-with-arduino-ide/
-  2) Создание простого веб-сервера на ESP8266 NodeMCU в Arduino IDE
-  Два режима работы веб-сервера -
-  https://radioprog.ru/post/866
-  3) Учебные данные (для тренировки) -
-  http://jsonplaceholder.typicode.com/users
-  4) A Beginner's Guide to the ESP8266 -
-  https://tttapa.github.io/ESP8266/Chap01%20-%20ESP8266.html
-  5) Google icons -
-  https://fonts.google.com/icons
-  6) Перевод изображения в текст Base64 -
-  http://translit-online.ru/image-base64-converter.html
-  7) Беспроводная загрузка кода на ESP32 -
-  https://voltiq.ru/esp32-ota-over-the-air-arduino/
-  8) ESP8266 Показания датчика графики NodeMCU в диаграммах (несколько серий) -
-  https://randomnerdtutorials.com/esp8266-nodemcu-plot-readings-charts-multiple/
-  9) ESP32/ESP8266 Вставка данных в базу данных MySQL с помощью PHP и Arduino IDE -
-  https://randomnerdtutorials.com/esp32-esp8266-mysql-database-php/
-  10) Как стереть память esp8266 на windows 10 -
-  https://wreckage.ru/how-to-erase-esp8266-memory-on-windows-10/
-*/
-
-/*
-   EEPROM
-   0-9B: start_operation
-   10-13B: operating_time
-   14-17B: frequency optimal
-*/
-
-/*
-   История
-   13-02-2022 Начало работы с модулем
-   26-02-2022 Подключение генератора AD9833. Работает.
-   01-03-2022 На телефон картинка передается, но не работает передача данных
-   03-03-2022 Испортился WeMos D1 mini, подключаю Node mcu V3
-   04-03-2022 Node mcu V3 работает исправно. mDNS работает только если в loop() есть строка MDNS.update();
-   23-03-2022 Выяснено, почему не работало на телефоне Вари: из-за new Date(). Это проблема встроенного браузера.
-   Даже если отключить Date(), все равн остается проблема: графики т-ры от трех датчиков сливаются в один.
-   При запуске с телефона Вари в Firefox все нормально. Также нормально на телефоне Саши.
-   25-03-2022 Переделка загрузки файлов, в т.ч. icons.
-*/
-
+/* 13-02-2022 Проект устройства № 5 */
 #include <EEPROM.h>
 #include <ESP8266WiFi.h>
 #include <ESPAsyncWebServer.h>
@@ -67,6 +20,7 @@ LittleFSConfig fileSystemConfig = LittleFSConfig();
 byte op_time_num = 0;
 uint addr = 0;
 char start_operation[10] = { '1', '3', '-', '0', '2', '-', '2', '0', '2', '2' }; // = ""; // Начало работы МК 13-02-2022
+//char start_operation[11] = "13-02-2022"; // Начало работы МК 13-02-2022
 unsigned long operating_time; // = 0; // Наработка МК - 4 байта
 
 // Wi-Fi
@@ -167,6 +121,12 @@ void setup()
     Serial.println("Filesystem LittleFS initialized.");
   }
   // 3. Инициализация EEPROM
+  /*
+   EEPROM
+   0-9B: start_operation
+   10-13B: operating_time
+   14-17B: frequency optimal
+  */
   // Адрес для записи наработки МК
   addr += 10 * sizeof(char); // Первые 10 байт - дата начала работы
 
