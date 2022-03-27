@@ -44,6 +44,7 @@ fieldset > legend + * {
 rt {
   font-size: 12px;
   font-family: Arial;  
+  color: #b55613;
 }
 ruby {
   margin: 0 6px;	
