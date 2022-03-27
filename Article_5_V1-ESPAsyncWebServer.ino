@@ -18,9 +18,7 @@ LittleFSConfig fileSystemConfig = LittleFSConfig();
 const byte ONE_WIRE_BUS = 5;
 
 byte op_time_num = 0;
-uint addr = 0;
-char start_operation[10] = { '1', '3', '-', '0', '2', '-', '2', '0', '2', '2' }; // = ""; // Начало работы МК 13-02-2022
-//char start_operation[11] = "13-02-2022"; // Начало работы МК 13-02-2022
+char start_operation[11] = { '1', '3', '-', '0', '2', '-', '2', '0', '2', '2', '\0' }; // = ""; // Начало работы МК 13-02-2022
 unsigned long operating_time; // = 0; // Наработка МК - 4 байта
 
 // Wi-Fi
@@ -48,7 +46,6 @@ OneWire oneWire(ONE_WIRE_BUS);
 // передаем объект oneWire объекту sensors:
 DallasTemperature sensors(&oneWire);
 // Variables to store temperature values
-//String temperatureF = "";
 String temperatureC = "";
 String startOperation = "";
 String operatingTime[3];
@@ -78,6 +75,9 @@ const int SG_CLK = 14;//4;
 const int SG_DATA = 13;//3;
 
 const int CURRENT_SETUP[41] = {1100, 1140, 1150, 1140, 1160, 1170, 1190, 1230, 1280, 1320, 1340, 1420, 1480, 1510, 1580, 1660, 1740, 1870, 2000, 2140, 2350, 2530, 2660, 2670, 2430, 2110, 1680, 1370, 1170, 1070, 1060, 1010, 950, 860, 820, 830, 790, 790, 790, 810, 830};
+const uint ADDR_start_operation = 0;
+const uint ADDR_operating_time = 11;
+const uint ADDR_frequency = 15;
 
 #define FREQ_BEGIN 1500000
 
@@ -122,37 +122,30 @@ void setup()
     Serial.println("Filesystem LittleFS initialized.");
   }
   // 3. Инициализация EEPROM
-  /*
-   EEPROM
-   0-9B: start_operation
-   10-13B: operating_time
-   14-17B: frequency optimal
-  */
-  // Адрес для записи наработки МК
-  addr += 10 * sizeof(char); // Первые 10 байт - дата начала работы
-
   EEPROM.begin(512);
 
   /*
     EEPROM
-    0-9B: start_operation
-    10-13B: operating_time
-    14-17B: frequency optimal
+    0-10B: start_operation
+    11-14B: operating_time
+    15-18B: frequency optimal
   */
   /*
-    //start_operation[10] = { '1', '3', '-', '0', '2', '-', '2', '0', '2', '2' };
-    EEPROM.put(0, start_operation);
-    operating_time = 5120; // 3 d 10 h 0 m
-    EEPROM.put(10, operating_time);
+    // Начальная запись в EEPROM
+    EEPROM.put(ADDR_start_operation, start_operation);
+    // Наработка МК
+    operating_time = 11560; // 8 d 00 h 40 m
+    EEPROM.put(ADDR_operating_time, operating_time);
+    // Оптимальная частота
     frequency = 1730000;
-    EEPROM.put(14, frequency);
+    EEPROM.put(ADDR_frequency, frequency);
     EEPROM.commit(); // сохранить изменения.
-  */
+ */ 
 
   // 4. Считывание даты начала работы, времени наработки МК, оптимальной частоты
-  EEPROM.get(0, start_operation);
-  EEPROM.get(10, operating_time);
-  EEPROM.get(14, frequency);
+  EEPROM.get(ADDR_start_operation, start_operation);
+  EEPROM.get(ADDR_operating_time, operating_time);
+  EEPROM.get(ADDR_frequency, frequency);
 
   // 5. Присвоение строковой String startOperation значения start_operation, прочитанного из EEPROM
   startOperation = start_operation;
@@ -160,12 +153,12 @@ void setup()
   // 6. Присвоение строковому массиву String operatingTime[3] значений дней, часов, минут
   format_operating_time();
 
-  // 8. Инициализация переменной DallasTemperature sensors датчиков
+  // 7. Инициализация переменной DallasTemperature sensors датчиков
   sensors.begin(); // по умолчанию разрешение датчика – 9-битное;
-  // 9. Изменение точности датчиков (от 9 до 12)
+  // 8. Изменение точности датчиков (от 9 до 12)
   //sensors.setResolution(insideThermometer, TEMPERATURE_PRECISION);
 
-  // 10. Присвоение первоначальных значений переменным температуры и тока
+  // 9. Присвоение первоначальных значений переменным температуры и тока
   // Сначала запросим т-ру, чтобы ответить на первоначальный вызов
   // (её нельзя напрямую запрашивать из обратного вызова)
   // String TemperatureC_init String device_current_init
@@ -174,7 +167,7 @@ void setup()
   // int current_imit()
   device_current_init = String(CURRENT_SETUP[23] + random(30)); // Временное решение
 
-  // 11. Подключение к сети WiFi
+  // 10. Подключение к сети WiFi
   Serial.println("Connecting to ");
   Serial.println(ssid);
   // подключиться к вашей локальной wi-fi сети
@@ -195,15 +188,15 @@ void setup()
     Serial.println("Error setting up MDNS responder!");
   }
 
-  // 12 Ответы на запросы клиента
+  // 11 Ответы на запросы клиента
 
-  // 12.1. Ответ на запрос по корневому URL-адресу.
+  // 11.1. Ответ на запрос по корневому URL-адресу.
   // Отправляется текст, хранящийся на /index.html для создания веб-страницы
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(LittleFS, "/index.html", "text/html");
   });
 
-  // 12.2 Обслуживание других статических файлов, запрошенных клиентом (style.css и script.js)
+  // 11.2 Обслуживание других статических файлов, запрошенных клиентом (style.css и script.js)
   server.on("/main.css", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(LittleFS, "/main.css", "text/css");
   });
@@ -223,17 +216,17 @@ void setup()
     request->send(LittleFS, "/favicon.ico", "image/x-icon");
   });
 
-  // 12.3 Ответ на запрос даты начала работы
+  // 11.3 Ответ на запрос даты начала работы
   server.on("/start_operation", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/plain", startOperation.c_str());
   });
 
-  // 12.4 Ответ на запрос текущей частоты
+  // 11.4 Ответ на запрос текущей частоты
   server.on("/set_frequency", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/plain", String(frequency).c_str());
   });
 
-  // 12.5 Ответ на запрос увеличения частоты
+  // 11.5 Ответ на запрос увеличения частоты
   server.on("/freq_inc", HTTP_GET, [](AsyncWebServerRequest * request) {
     frequency += 10000;
     measurement_num = 0;
@@ -243,7 +236,7 @@ void setup()
     request->send_P(200, "text/plain", String(frequency).c_str());
   });
 
-  // 12.6 Ответ на запрос уменьшения частоты
+  // 11.6 Ответ на запрос уменьшения частоты
   server.on("/freq_dec", HTTP_GET, [](AsyncWebServerRequest * request) {
     frequency -= 10000;
     measurement_num = 0;
@@ -253,7 +246,7 @@ void setup()
     request->send_P(200, "text/plain", String(frequency).c_str());
   });
 
-  // 12.7 Ответ на начальный запрос температуры
+  // 11.7 Ответ на начальный запрос температуры
   server.on("/temperature_init", HTTP_GET, [](AsyncWebServerRequest * request) {
     // Здесь (из асинхронного обратного вызова веб-сервера) нельзя напрямую вызывать методы DallasTemperature.
     // Т.к. методы DallasTemperature вызывают delay().
@@ -263,12 +256,12 @@ void setup()
     request->send_P(200, "text/plain", TemperatureC_init.c_str());
   });
 
-  // 12.8 Ответ на начальный запрос текущего тока
+  // 11.8 Ответ на начальный запрос текущего тока
   server.on("/device_current_init", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send_P(200, "text/plain", device_current_init.c_str());
   });
 
-  // 12.9 Ответ на начальный запрос времени нработки
+  // 11.9 Ответ на начальный запрос времени нработки
   server.on("/operating_time_init", HTTP_GET, [](AsyncWebServerRequest * request) {
     // Формируем строку для отправки
     readings_op_time["days"] = operatingTime[0];
@@ -278,7 +271,7 @@ void setup()
     request->send_P(200, "text/plain", jsonString.c_str());
   });
 
-  // 12.10 Ответ на запрос на запуск режима настройки
+  // 11.10 Ответ на запрос на запуск режима настройки
   server.on("/run_setup", HTTP_GET, [](AsyncWebServerRequest * request) {
     mode_operation = SEARCH_MODE;
     request->send_P(200, "text/plain", String(mode_operation).c_str());
@@ -287,7 +280,7 @@ void setup()
 
   server.onNotFound(notFound);
 
-  // 13. Настройка источника событий сервера
+  // 12. Настройка источника событий сервера
   events.onConnect([](AsyncEventSourceClient * client) {
     if (client->lastId()) {
       Serial.printf("Client reconnected! Last message ID that it got is: %u\n", client->lastId());
@@ -298,14 +291,12 @@ void setup()
   });
   server.addHandler(&events);
 
-  // 14. Init AD9833
+  // 13. Init AD9833
   InitSigGen();
 
-  // 15. Запуск сервера
+  // 14. Запуск сервера
   server.begin();
   Serial.println("HTTP server started");
-
-  //MDNS.update();
 }
 
 void loop() {
@@ -413,7 +404,7 @@ void loop() {
         // Задержка для просмотра результата м переход в рабочий режим с новой лучшей частотой
         //delay(15000);
         // Записываем наилучшую частоту в EEPROM для использования при старте МК в следующий раз
-        EEPROM.put(14, frequency);
+        EEPROM.put(ADDR_frequency, frequency);
         // Записываем измеренные для всех частот напряжения в EEPROM
         /*
           int addr = 6;
@@ -516,7 +507,7 @@ void SG_freqSet() {
 void operating_time_add()
 {
   operating_time += 1;
-  EEPROM.put(addr, operating_time);
+  EEPROM.put(ADDR_operating_time, operating_time);
   EEPROM.commit(); // сохранить изменения.
   //Serial.println("Found: " + String(start_operation) + "," + String(operating_time));
   // Формируем строку наработки МК

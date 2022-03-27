@@ -227,7 +227,9 @@ var chartT = new Highcharts.chart('chart-temperature',{
     inverted: false
   },
   time: {
-        timezoneOffset: -120
+    // timezoneOffset: -120
+	useUTC: false,
+	timezone: 'Europe/Helsinki'
   },
   series: [
     {
