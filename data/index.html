@@ -6,11 +6,19 @@
   <!--<link rel="icon" type="image/png" href="favicon.png">-->
   <!-- Стили из внешнего файла -->
   <link rel="stylesheet" type="text/css" href="main.css">
-  <!-- Иконки Google -->
-  <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>-->
-  <!-- <script src="https://code.highcharts.com/highcharts.js"></script> -->
+  <link rel="stylesheet" type="text/css" href="balloon.css">
+  <!-- This link will always fetch the latest version of Balloon.css -->
+  <!--<link rel="stylesheet" href="https://unpkg.com/balloon-css/balloon.min.css">-->
+  <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/animations/scale.css"/>
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <script src="highcharts.js"></script>
+  <style>
+	.tooltip-yellow {
+      --balloon-color: yellow;
+	  --balloon-text-color: black;
+    }
+  </style>
+  
 </head>
 <body>
   <!-- Фирменное изображение -->
@@ -40,13 +48,15 @@
 		  Frequency, Hz
 		</td>
 		<td>
-		  <input type="button" onclick="inc_freq()" value="Increase by 10 kHz" style="width: 140px;">
+		  <button aria-label="Increase generator frequency." 
+		  data-balloon-pos="up" class="tooltip-yellow" style="width: 140px;" onclick="inc_freq()">Increase by 10 kHz</button>
 		</td>
 		<td>
 		  Current, mA
 		</td>
 		<td rowspan="2">
-		  <input type="button" id="run_setup_btn_id" onclick="run_setup()" value="Run setup" style="height: 50px;">
+		  <button id="run_setup_btn_id" aria-label="Start searching for the optimal frequency." 
+		  data-balloon-pos="up" class="tooltip-yellow" style="height: 50px;" onclick="run_setup()">Run setup</button>
 		</td>
 	  </tr>
 	  <tr>
@@ -54,7 +64,8 @@
 		  <span id="set_frequency" style="background: white; border: 1px double black; padding: 2px;"></span>
 		</td>
 		<td>
-		  <input type="button" onclick="dec_freq()" value="Decrease by 10 kHz" style="width: 140px;">
+		  <button aria-label="Decrease generator frequency." 
+		  data-balloon-pos="up" class="tooltip-yellow" style="width: 140px;" onclick="dec_freq()">Decrease by 10 kHz</button>
 		</td>
 		<td>
 		  <span id="device_current" style="display: inline-block; background: white; border: 1px double black; padding: 2px; width:38px;"></span>
@@ -71,7 +82,7 @@
     <legend>Temperature</legend>
     <div id="chart-temperature" class="chart-container"></div>
   </fieldset>
-  
+    
   <footer>
     <span class="ds-labels">Microcontroller:</span>
     <!--<i class="material-icons"  style="color:green; font-size: 20px">event_available</i>-->
