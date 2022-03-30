@@ -200,9 +200,6 @@ void setup()
   server.on("/main.css", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(LittleFS, "/main.css", "text/css");
   });
-  server.on("/balloon.css", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(LittleFS, "/balloon.css", "text/css");
-  });
   server.on("/main.js", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(LittleFS, "/main.js", "text/javascript");
   });
